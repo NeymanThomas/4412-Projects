@@ -1,4 +1,5 @@
-#!/usr/local/bin/python3.7
+#!/usr/bin/env python3
+# https://mail.python.org/pipermail/tutor/2007-June/054816.html
 
 import signal
 import sys
