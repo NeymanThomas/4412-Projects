@@ -3,6 +3,7 @@
 
 import signal
 import sys
+from fermat import *
 
 #
 # This grabs the correct version of PYQT and depends on the existence of a file called

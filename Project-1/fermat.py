@@ -27,7 +27,7 @@ def mod_exp(x, y, N):
     x = x % N
 
     while y > 0:
-        if y % 2:
+        if y % 2 == 0:
             z = (z * x) %  N
             y = y - 1
         else:
