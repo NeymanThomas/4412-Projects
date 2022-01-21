@@ -28,27 +28,32 @@ def mod_exp(x, y, N):
         return (z ** 2) % N
     else:
         return x * (z ** 2) % N
-    
-    # why can't it simply be this?
-    #return (x ** y) % N
 	
 
-def fprobability(k):
-    # You will need to implement this function and change the return value.   
-    return 0.0
+def fprobability(k):  
+    # Finding the probability for Fermat Algorithm is extremely simple. 
+    # Because the function has a one-to-one relation with elements that
+    # fail the test and elements that pass, this implies there is a 1/2
+    # chance the test will fail. Increasing the amount of tests done
+    # exponentially decreases this chance by changing the probability to
+    # 1 / 2 * k where k is the number of tests run.
+    return 1 - ( 1 / (2 * k))
 
 
 def mprobability(k):
-    # You will need to implement this function and change the return value.   
-    return 0.0
+    # For this test, the more bases of a that are tried, the more accurate
+    # the test will be. If N is composite, then at most 1/4 of the bases are
+    # strong liars for N. So compounding this probability with k gives you
+    # a probability of 1 / 4 * k error. This is superior to the Fermat test.
+    return 1 - (1 / (4 * k))
 
 def fermat(N,k):
     # This function uses the Fermat algorithm to determine if a number is prime or composite.
     # k represents the amount of iterations when testing if the input 'N' is
     # prime or not. The larger k, the more precise the algorithm. the 'a' value is chosen
     # at random with the random.randint() method. this is done k number of iterations.
-    # If the algorithm finds a case where a^(N-1)%1 != 1 it will return composite
-    # early, otherwise it will return prime.
+    # If the algorithm finds a case where a^(N-1)%1 == 1 it will return prime
+    # early, otherwise it will return composite.
     #
     # <PSEUDO CODE>
     # function primality(N)
@@ -70,19 +75,56 @@ def fermat(N,k):
     else:
         for i in range(k):
             # it doesn't make sense to mod by 1, so start at 2
-            a = random.randint(2, N - 1)
+            a = random.randint(2, N - 2)
 
-            if mod_exp(a, N - 1, N) != 1:
-                return 'composite'
-    return 'prime'
+            if mod_exp(a, N - 1, N) == 1:
+                return 'prime'
+    return 'composite'
 
 
 
 def miller_rabin(N,k):
-    # You will need to implement this function and change the return value, which should be
-    # either 'prime' or 'composite'.
-	#
-    # To generate random values for a, you will most likley want to use
-    # random.randint(low,hi) which gives a random integer between low and
-    #  hi, inclusive.
-	return 'composite'
+    # this function did not have any pseudo code provided in the text but it also
+    # functions quite similarly to the Fermat test.
+
+    # once again we need to check manually for values 4 or less
+    if N == 1 or N == 4:
+        return 'composite'
+    elif N == 2 or N == 3:
+        return 'prime'
+    else:
+        # integer 'a' will need to be 1 < a < N - 1
+        # we are trying to achieve 
+        # - a^d = 1 (mod N)     or
+        # - a^(2^r)d = -1 (mod N) for some 0 <= r <= s
+        # when N is an odd prime it will pass because of Fermat's little theorem where
+        # - a^(n-1) = 1 (mod N)
+        # the only only square roots of 1 mod N are 1 and -1
+
+        # We need to factor out powers of 2 from N - 1 so that we end up with 2^r * d + 1
+        d = N - 1
+        while (d % 2 == 0):
+            d //= 2
+
+        # now we loop for k iterations
+        for i in range(k):
+            # a is once again our random value
+            a = random.randint(2, N - 2)
+            # x holds the value for a^d mod N
+            x = mod_exp(a, d, N)
+            # if x returned as 1 or N - 1, we can exit early and know it's prime
+            if (x == 1 or x == N - 1):
+                return 'prime'
+            
+            # loop an r number of times
+            while (d != N - 1):
+                # x = x^2 mod N
+                x = (x * x) % N
+                d *= 2
+
+                if (x == 1):
+                    return 'composite'
+                if (x == N - 1):
+                    return 'prime'
+            
+            return 'composite'
