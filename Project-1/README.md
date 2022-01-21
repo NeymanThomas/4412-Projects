@@ -18,11 +18,11 @@ To use the application, simply input a Number N and a value k. N represents the 
 would like to iterate the test. You should notice that composite numbers are always correctly identified, but prime numbers are sometiems misidentified especially
 with lower k values. 
 
-![Image1](Project-1/docs/Example_2.png)
+![Image1](docs/Example_2.png)
 
 Here we can see that 17 if very likely prime thanks to the number of iterations k we performed on the number.
 
-![Image2](Project-1/docs/Example_3.png)
+![Image2](docs/Example_3.png)
 
 Here, 11 got past the test for the Fermat equation because not enough iterations of the algorithm were tried, thus the probability for determining if it was 
 prime was lower.
