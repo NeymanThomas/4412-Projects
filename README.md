@@ -4,7 +4,7 @@ This repo contains the various projects required for class 4412 - Advanced Algor
 ### [Project 1](https://github.com/NeymanThomas/4412-Projects/tree/main/Project-1)
 Fermat: The purpose of this project is to get you up and running with Python. You will also gain experience with algorithms for modular arithmetic. In this project, you will implement a prime number test based on Fermat's little theorem and the Miller-Rabin conditions.
 
-### Project 2
+### [Project 2](https://github.com/NeymanThomas/4412-Projects/tree/main/Project-2)
 Convex Hull: In this project, you will implement a divide and conquer algorithm for finding the convex hull of a set of points and you will analyze the algorithm both theoretically and empirically.
 
 ### Project 3
