@@ -1,3 +1,4 @@
+from pstats import SortKey
 from which_pyqt import PYQT_VER
 if PYQT_VER == 'PYQT5':
 	from PyQt5.QtCore import QLineF, QPointF, QObject
@@ -18,6 +19,14 @@ BLUE = (0,0,255)
 # Global variable that controls the speed of the recursion automation, in seconds
 #
 PAUSE = 0.25
+
+# Simple bubble sort algorithm to sort the points by ther x values
+def bubbleSort(points):
+	n = len(points)
+	for i in range(n - 1):
+		for j in range(0, n - i - 1):
+			if points[j].x() > points[j + 1].x():
+				points[j], points[j + 1] = points[j + 1], points[j]	
 
 #
 # This is the class you have to complete.
@@ -65,6 +74,7 @@ class ConvexHullSolver(QObject):
 
 		t1 = time.time()
 		# TODO: SORT THE POINTS BY INCREASING X-VALUE
+		bubbleSort(points)
 		t2 = time.time()
 
 		t3 = time.time()
