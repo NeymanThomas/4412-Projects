@@ -28,6 +28,19 @@ def bubbleSort(points):
 			if points[j].x() > points[j + 1].x():
 				points[j], points[j + 1] = points[j + 1], points[j]	
 
+def divide_hull(points):
+	if len(list) == 1:
+		return points
+	
+	left = divide_hull(points[0: len(points) / 2])
+	right = divide_hull(points[(points) / 2:])
+	return merge(left, right)
+
+def merge(left, right):
+	# get the P and Q points
+	P = max(left, key=lambda left: left.x())
+	Q = min(right, key=lambda right: right.x())
+
 #
 # This is the class you have to complete.
 #
@@ -73,7 +86,8 @@ class ConvexHullSolver(QObject):
 		assert( type(points) == list and type(points[0]) == QPointF )
 
 		t1 = time.time()
-		# TODO: SORT THE POINTS BY INCREASING X-VALUE
+		#cheater way to sort
+		#points = sorted(points, key=lambda p: p.x())
 		bubbleSort(points)
 		t2 = time.time()
 
