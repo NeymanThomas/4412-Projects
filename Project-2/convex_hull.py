@@ -18,6 +18,10 @@ RED = (255,0,0)
 GREEN = (0,255,0)
 BLUE = (0,0,255)
 
+RIGHT = 1
+LEFT = -1
+ZERO = 0
+
 # Global variable that controls the speed of the recursion automation, in seconds
 #
 PAUSE = 0.25
@@ -44,55 +48,103 @@ def divide_hull(points):
 
 	# Make copies of P and Q so that you have a set for the upper and lower lines
 	P_copy, Q_copy = P, Q
-	line_current = QLineF(P, Q).angle()
+
+	#for element in right:
+	#	if direction(P, Q, element) == LEFT:
+	#		Q = element
+
+	P_prev, Q_prev = None, None
+	while True:
+		P_prev = P
+		Q_prev = Q
+
+		for q_next in right:
+			if direction(P, Q, q_next) == LEFT:
+				Q = q_next
+				right.remove(Q_prev)
+				Q_prev = Q
+		
+		for p_next in left:
+			if direction(Q, P, p_next) == RIGHT:
+				P = p_next
+				left.remove(P_prev)
+				P_prev = P
+	
+		if P == P_prev and Q == Q_prev:
+			break
+
+	PC_prev, QC_prev = None, None
+	while True:
+		PC_prev = P_copy
+		QC_prev = Q_copy
+
+		for q_next in right:
+			if direction(P_copy, Q_copy, q_next) == RIGHT:
+				Q_copy = q_next
+				right.remove(QC_prev)
+				QC_prev = Q_copy
+		
+		for p_next in left:
+			if direction(Q_copy, P_copy, p_next) == LEFT:
+				P_copy = p_next
+				left.remove(PC_prev)
+				PC_prev = P_copy
+	
+		if P_copy == PC_prev and Q_copy == QC_prev:
+			break
 
 	# Compare the tangent line angle from P to Q. If the angle increases
 	# set Q to the next point that was increased. This should be done CLOCKWISE
-
-	# PROBLEM: So all I have to do is check the angle of the line from P to Q.
-	# however I don't know how to do this in a clockwise manner. If you go from
-	# y values it will go through the entire list which isn't fast at all. The points
-	# are stored in a list, so it's linear set of data. There is no way to tell
-	# direction I need to go to the next point. 
-	Q_next = None
-	Q_prev = Q
-	while True:
-		
-		break
+	#for point in right:
+	#	if point.y() > Q.y() and point.x() > Q.x():
+	#		Q = point
+	#		right.remove(Q)
 
 	# Compare the tangent line angle from Q to P. If the angle increases
 	# set P to the next point that was increased. This should be done COUNTER CLOCKWISE
-	for point in left:
-		if point.y() > P.y():
-			P = point
+	#for point in left:
+	#	if point.y() > P.y() and point.x() > P.x():
+	#		P = point
+	#		left.remove(P)
 
 	# Compare the tangent line angle from P to Q. If the angle decreases
 	# set Q to the next point that was decreased. This should be COUNTER CLOCKWISE
-	for point in right:
-		if point.y() < Q_copy.y():
-			Q_copy = point
+	#for point in right:
+	#	if point.y() < Q_copy.y() and point.x() < Q_copy.x():
+	#		Q_copy = point
+	#		right.remove(Q_copy)
 
 	# Compare the tangent line angle from Q to P. If the angle decreases
 	# set P to the next point that was decreased. This should be done CLOCKWISE
-	for point in left:
-		if point.y() < P_copy.y():
-			P_copy = point
+	#for point in left:
+	#	if point.y() < P_copy.y() and point.x() < Q_copy.x():
+	#		P_copy = point
+	#		left.remove(P_copy)
 
-	return points
+	print("===Joining the new lists===")
+	new_hull = left + right
+	return new_hull
 
-def merge(left, right):
+def direction(A, B, C):
+	global RIGHT, LEFT, ZERO
 
-	print(max(left, key=lambda left: left.x()))
-	# get the P and Q points
-	P = max(left, key=lambda left: left.x())
-	Q = min(right, key=lambda right: right.x())
-	# create a copy of the P and Q points
-	P_copy, Q_copy = P, Q
-	# create variables to store the previously found P and Q points
-	Prev_P, Prev_Q = P, Q
+	originX, originY = A.x(), A.y()
+	BX, BY = B.x(), B.y()
+	CX, CY = C.x(), C.y()
 
-	#Now you need to enter a while loop that checks for Q tangent line keeps increasing
-	#print(QLineF(left[P], right[Q]).angel())
+	BX -= originX
+	BY -= originY
+	CX -= originX
+	CY -= originY
+
+	cross_product = BX * CY - BY * CX
+
+	if cross_product > 0:
+		return RIGHT
+	if cross_product < 0:
+		return LEFT
+	return ZERO
+
 
 #
 # This is the class you have to complete.
@@ -147,8 +199,8 @@ class ConvexHullSolver(QObject):
 
 		t3 = time.time()
 		# this is a dummy polygon of the first 3 unsorted points
-		polygon = [QLineF(points[i],points[(i+1)%3]) for i in range(3)]
-		divide_hull(points)
+		points = divide_hull(points)
+		polygon = [QLineF(points[i], points[(i+1)%len(points)]) for i in range(len(points))]
 		# TODO: REPLACE THE LINE ABOVE WITH A CALL TO YOUR DIVIDE-AND-CONQUER CONVEX HULL SOLVER
 		t4 = time.time()
 
