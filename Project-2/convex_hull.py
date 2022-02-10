@@ -49,10 +49,8 @@ def divide_hull(points):
 	# Make copies of P and Q so that you have a set for the upper and lower lines
 	P_copy, Q_copy = P, Q
 
-	#for element in right:
-	#	if direction(P, Q, element) == LEFT:
-	#		Q = element
-
+	# Never figured out the algorithm for this part. Not sure how to sort through
+	# the lists in clockwise directions
 	P_prev, Q_prev = None, None
 	while True:
 		P_prev = P
@@ -61,14 +59,10 @@ def divide_hull(points):
 		for q_next in right:
 			if direction(P, Q, q_next) == LEFT:
 				Q = q_next
-				right.remove(Q_prev)
-				Q_prev = Q
 		
 		for p_next in left:
 			if direction(Q, P, p_next) == RIGHT:
 				P = p_next
-				left.remove(P_prev)
-				P_prev = P
 	
 		if P == P_prev and Q == Q_prev:
 			break
@@ -81,47 +75,14 @@ def divide_hull(points):
 		for q_next in right:
 			if direction(P_copy, Q_copy, q_next) == RIGHT:
 				Q_copy = q_next
-				right.remove(QC_prev)
-				QC_prev = Q_copy
 		
 		for p_next in left:
 			if direction(Q_copy, P_copy, p_next) == LEFT:
 				P_copy = p_next
-				left.remove(PC_prev)
-				PC_prev = P_copy
 	
 		if P_copy == PC_prev and Q_copy == QC_prev:
 			break
 
-	# Compare the tangent line angle from P to Q. If the angle increases
-	# set Q to the next point that was increased. This should be done CLOCKWISE
-	#for point in right:
-	#	if point.y() > Q.y() and point.x() > Q.x():
-	#		Q = point
-	#		right.remove(Q)
-
-	# Compare the tangent line angle from Q to P. If the angle increases
-	# set P to the next point that was increased. This should be done COUNTER CLOCKWISE
-	#for point in left:
-	#	if point.y() > P.y() and point.x() > P.x():
-	#		P = point
-	#		left.remove(P)
-
-	# Compare the tangent line angle from P to Q. If the angle decreases
-	# set Q to the next point that was decreased. This should be COUNTER CLOCKWISE
-	#for point in right:
-	#	if point.y() < Q_copy.y() and point.x() < Q_copy.x():
-	#		Q_copy = point
-	#		right.remove(Q_copy)
-
-	# Compare the tangent line angle from Q to P. If the angle decreases
-	# set P to the next point that was decreased. This should be done CLOCKWISE
-	#for point in left:
-	#	if point.y() < P_copy.y() and point.x() < Q_copy.x():
-	#		P_copy = point
-	#		left.remove(P_copy)
-
-	print("===Joining the new lists===")
 	new_hull = left + right
 	return new_hull
 
