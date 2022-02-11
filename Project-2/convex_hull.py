@@ -86,6 +86,8 @@ def divide_hull(points):
 	new_hull = left + right
 	return new_hull
 
+# Returns the direction the line is moving from one line segment
+# to the next line segment using a cross product
 def direction(A, B, C):
 	global RIGHT, LEFT, ZERO
 
