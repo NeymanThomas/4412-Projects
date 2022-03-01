@@ -105,9 +105,9 @@ class PointLineView( QWidget ):
 		h = self.height()
 		w2h_desired_ratio = (xr[1]-xr[0])/(yr[1]-yr[0])
 		if w / h < w2h_desired_ratio:
-			 scale = w / (xr[1]-xr[0])
+			scale = w / (xr[1]-xr[0])
 		else:
-			 scale = h / (yr[1]-yr[0])
+			scale = h / (yr[1]-yr[0])
 		return scale
 
 	def paintEvent(self, event):
