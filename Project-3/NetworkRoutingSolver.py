@@ -3,11 +3,11 @@
 
 from CS4412Graph import *
 import time
-from collections import defaultdict
-import sys
-
 
 class NetworkRoutingSolver:
+    FinalList = []
+    FinalEdges = []
+
     def __init__( self):
         pass
 
@@ -18,164 +18,99 @@ class NetworkRoutingSolver:
     #this returns the shortest path from the source to the destination
     def getShortestPath( self, destIndex ):
         self.dest = destIndex
-        # TODO: RETURN THE SHORTEST PATH FOR destIndex
-        #       INSTEAD OF THE DUMMY SET OF EDGES BELOW
-        #       IT'S JUST AN EXAMPLE OF THE FORMAT YOU'LL 
-        #       NEED TO USE
 
-        path_edges = []
-        total_length = 0
-        node = self.network.nodes[self.source]
-        edges_left = 3
-        while edges_left > 0:
-            edge = node.neighbors[2]
-            path_edges.append( (edge.src.loc, edge.dest.loc, '{:.0f}'.format(edge.length)) )
-            total_length += edge.length
-            node = edge.dest
-            edges_left -= 1
-        return {'cost':total_length, 'path':path_edges}
+        # This shows the table of shortest paths from the source node
+        print("Node\tDistance from Source")
+        for i in range(len(self.network.nodes)):
+            print("%d\t\t%d" % (i+1, self.FinalList[i]))
+
+        return {'cost':self.FinalList[destIndex], 'path':self.FinalEdges}
 
     # run Dijkstras here
     def computeShortestPaths( self, srcIndex, use_heap=False ):
         self.source = srcIndex
         t1 = time.time()
-        # TODO: RUN DIJKSTRA'S TO DETERMINE SHORTEST PATHS.
-        #       ALSO, STORE THE RESULTS FOR THE SUBSEQUENT
-        #       CALL TO getShortestPath(dest_index)
-
-        #if use_heap:
-            # code here
-            #return
-        #else:
-
-        """
-        graph = Graph(9)
-        graph.addEdge(0, 1, 4)
-        graph.addEdge(0, 7, 8)
-        graph.addEdge(1, 2, 8)
-        graph.addEdge(1, 7, 11)
-        graph.addEdge(2, 3, 7)
-        graph.addEdge(2, 8, 2)
-        graph.addEdge(2, 5, 4)
-        graph.addEdge(3, 4, 9)
-        graph.addEdge(3, 5, 14)
-        graph.addEdge(4, 5, 10)
-        graph.addEdge(5, 6, 2)
-        graph.addEdge(6, 7, 1)
-        graph.addEdge(6, 8, 6)
-        graph.addEdge(7, 8, 7)
-        graph.D(srcIndex)
-        """
 
         # get the number of vertices in the graph
         n = len(self.network.nodes)
         # this is the list of distances from the starting index
         distances = []
         # instance of heap implementation
-        minHeap = Heap()
+        heap = CS4412Heap()
 
-        for v in range(n):
-            distances.append(1e7)
-            minHeap.array.append(minHeap.newMinHeapNode(v, distances[v]))
-            minHeap.pos.append(v)
+        for i in range(n):
+            # 10000000 just acts as a very large number kind of like infinity
+            distances.append(10000000)
+            # fill the heap with infinite values
+            heap.array.append(heap.createNode(i, distances[i]))
+            # fill the position list to keep track of nodes
+            heap.pos.append(i)
         
-        minHeap.pos[srcIndex] = srcIndex
+        # set the position to the source node chosen
+        heap.pos[srcIndex] = srcIndex
+        # set its distance value to '0'
         distances[srcIndex] = 0
-        minHeap.decreaseKey(srcIndex, distances[srcIndex])
-        minHeap.size = n
+        heap.decreaseKey(srcIndex, distances[srcIndex])
+        heap.size = n
 
-        while minHeap.isEmpty() == False:
-            newHeapNode = minHeap.extractMin()
-            u = newHeapNode[0]
+        while heap.isEmpty() == False:
+            # Extract the vertex with the minimum distance value
+            newHeapNode = heap.deleteMin()
+            current = newHeapNode[0]
+            # current represents the current node that has been removed from the heap.
 
-            for edge in self.network.nodes[u].neighbors:
+            # here edge represents one edge of the currently selected node current. edge.dest
+            # represents the edge destination and edge.length represents the weight of the edge
+            # destination is set to the destination node currently being looked at from current
+            for edge in self.network.nodes[current].neighbors:
                 destination = edge.dest
 
-                if minHeap.isInMinHeap(destination.node_id) and distances[u] != 1e7 and edge.length + distances[u] < distances[destination.node_id]:
-                    distances[destination.node_id] = edge.length + distances[u]
+                if heap.isInHeap(destination.node_id) and distances[current] != 10000000 and edge.length + distances[current] < distances[destination.node_id]:
+                    distances[destination.node_id] = edge.length + distances[current]
                     # update the distance value in min heap also
-                    minHeap.decreaseKey(destination.node_id, distances[destination.node_id])
+                    heap.decreaseKey(destination.node_id, distances[destination.node_id])
         
-        printArr(distances, n)
-
-        """
-        while minHeap.isEmpty() == False:
-            # Extract the vertex with the minimum distance value
-            newHeapNode = minHeap.extractMin()
-            u = newHeapNode[0]
-            # u represents the current node that has been popped from the heap.
-            # u is the integer value of the node, so u should return as an integer
-
-            # here pCrawl represents the edge of the currently selected node u. pCrawl[0]
-            # represents the edge destination and pCrawl[1] represents the weight of the edge
-            # so v is set the the destination node currently being looked at from u
-            for pCrawl in self.network.nodes[u].neighbors:
-                v = pCrawl[0]
-
-                # if minHeap.isInMinHeap checks to see if the destination node v is in the min heap
-                # just takes in an integer index and checks the pos list
-                #
-                # if distances[u] != 1e7 just checks to see if the distance is infinite
-                #
-                # if pCrawl[1] + dist[u] < dist[v]
-                # pCrawl[1] is the weight from the current node and dist[u] is the recorded length from the
-                # source to the current node. dist[v] is the current recorded distance of the destination node
-                # being looked at by u. So essentially it is determining:
-                #   edge.length + distance at current node < distance at destination node
-                if minHeap.isInMinHeap(v) and distances[u] != 1e7 and pCrawl[1] + dist[u] < dist[v]:
-                    # update the distance value in the list of the destination node to be the
-                    # new updated distance
-                    distances[v] = pCrawl[1] + distances[u]
-                    # update the distance value in min heap also
-                    minHeap.decreaseKey(v, dist[v])
-
-        printArr(distances, n)
-        """
+        # This is simply used to get the shortest path tlo the getShortestPath function
+        self.FinalList = distances
 
         t2 = time.time()
         return (t2-t1)
 
 
-
-def printArr(dist, n):
-    print("Vertex\tDistance from Source")
-    for i in range(n):
-        print("%d\t\t%d" % (i, dist[i]))
-
-
-# the minimum heap implementation that acts as our priority queue
-class Heap():
+# the heap implementation that acts as our priority queue
+class CS4412Heap():
     def __init__(self):
         self.array = []
         self.size = 0
         self.pos = []
     
-    def newMinHeapNode(self, v, dist):
+    def createNode(self, v, dist):
         minHeapNode = [v, dist]
         return minHeapNode
     
-    def swapMinHeapNode(self, a, b):
+    def swapNode(self, a, b):
         t = self.array[a]
         self.array[a] = self.array[b]
         self.array[b] = t
     
-    def minHeapify(self, idx):
-        smallest = idx
-        left = 2*idx + 1
-        right = 2*idx + 2
-        if left < self.size and self.array[left][1] < self.array[smallest][1]:
-            smallest = left
-        if right < self.size and self.array[right][1] < self.array[smallest][1]:
-            smallest = right
-        if smallest != idx:
+    # this heapify function shuffles the highest priority item to the head of the queue
+    def minHeapify(self, index):
+        shortest = index
+        left = 2*index + 1
+        right = 2*index + 2
+        if left < self.size and self.array[left][1] < self.array[shortest][1]:
+            shortest = left
+        if right < self.size and self.array[right][1] < self.array[shortest][1]:
+            shortest = right
+        if shortest != index:
             # swap position
-            self.pos[self.array[smallest][0]] = idx
-            self.pos[self.array[idx][0]] = smallest
+            self.pos[self.array[shortest][0]] = index
+            self.pos[self.array[index][0]] = shortest
             # swap nodes
-            self.swapMinHeapNode(smallest, idx)
-            self.minHeapify(smallest)
+            self.swapNode(shortest, index)
+            self.minHeapify(shortest)
     
-    def extractMin(self):
+    def deleteMin(self):
         if self.isEmpty():
             return
 
@@ -201,81 +136,20 @@ class Heap():
     def decreaseKey(self, v, dist):
         # get the index of v in heap array
         i = self.pos[v]
-        # get the node and upfate its dist value
+        # get the node and update its distance value
         self.array[i][1] = dist
-        # travel up while the complete tree is not heapified.
+        # travel up while the complete heap is not shuffled
         # this is an O(Log n ) loop
         while i > 0 and self.array[i][1] < self.array[(i - 1) // 2][1]:
             # swap the node and its parent
             self.pos[self.array[i][0]] = (i - 1) // 2
             self.pos[self.array[(i-1) // 2][0]] = i
-            self.swapMinHeapNode(i, (i - 1) // 2)
+            self.swapNode(i, (i - 1) // 2)
             # move to parent index
             i = (i - 1) // 2
     
     # utility function to check if a given vertex in in the min heap or not
-    def isInMinHeap(self, v):
+    def isInHeap(self, v):
         if self.pos[v] < self.size:
             return True
         return False
-
-class Graph():
- 
-    def __init__(self, V):
-        self.V = V
-        self.graph = defaultdict(list)
- 
-    # Adds an edge to an undirected graph
-    def addEdge(self, src, dest, weight):
- 
-        # Add an edge from src to dest.  A new node
-        # is added to the adjacency list of src. The
-        # node is added at the beginning. The first
-        # element of the node has the destination
-        # and the second elements has the weight
-        newNode = [dest, weight]
-        self.graph[src].insert(0, newNode)
- 
-        # Since graph is undirected, add an edge
-        # from dest to src also
-        newNode = [src, weight]
-        self.graph[dest].insert(0, newNode)
-    
-    def D(self, src):
-        V = self.V
-        dist = []
-        minHeap = Heap()
-        for v in range(V):
-            dist.append(1e7)
-            minHeap.array.append( minHeap.newMinHeapNode(v, dist[v]))
-            minHeap.pos.append(v)
-        
-        minHeap.pos[src] = src
-        dist[src] = 0
-        minHeap.decreaseKey(src, dist[src])
-        minHeap.size = V
-
-        ##########################################################
-        while minHeap.isEmpty() == False:
-            newHeapNode = minHeap.extractMin()
-            u = newHeapNode[0]
-            print("========================================================")
-            print("The current min node being extracted from the heap is {}".format(u))
-
-            for pCrawl in self.graph[u]:
-                v = pCrawl[0]
-                print("Items in pCrawl: Destination {}, Weight {}".format(pCrawl[0], pCrawl[1]))
-                print("from {} looking at vertex {}".format(u, v))
-                # If shortest distance to v is not finalized
-                # yet, and distance to v through u is less
-                # than its previously calculated distance
-                print("The current distance to node {} from the source is {}".format(u, dist[u]))
-                print("The weight of the edge from u plus the distance is {}, compared to the distance in the list {}".format(pCrawl[1] + dist[u], dist[v]))
-                if (minHeap.isInMinHeap(v) and dist[u] != 1e7 and pCrawl[1] + dist[u] < dist[v]):
-                        dist[v] = pCrawl[1] + dist[u]
-                        # update distance value
-                        # in min heap also
-                        minHeap.decreaseKey(v, dist[v])
-        
-        printArr(dist, V)
-
