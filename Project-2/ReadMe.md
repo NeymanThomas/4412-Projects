@@ -20,14 +20,8 @@ $ python Proj2GUI.py
 ```
 
 ## Usage
-**Goals:**
-1. Understand Dijkstra’s algorithm in the context of a real world problem.
-2. Implement a priority queue with worst-case logarithmic operations.
-3. Compare two different priority queue data structures for implementing Dijkstra’s and empirically verify their differences.
-4. Understand the importance of proper data structures/implementations to gain the full efficiency potential of algorithms.
+More generally beyond two dimensions, the convex hull for a set of points Q in a real vector space V is the minimal convex set containing Q .
 
-When you hit “Generate” the framework for this project generates a random set of nodes, V, each with 3 randomly selected edges to other nodes. The edges are directed and the edge cost is the Euclidean distance between the nodes. Thus all nodes will have an out-degree of 3, but no predictable value for in-degree. You will be passed a graph structure which is comprised of |V| nodes, each with 3 edges, thus |E| = 3 |V| = O(|V|). The nodes have an (x,y) location and the edges include the start/end nodes and the edge length. The nodes are drawn on the display in the provided framework. You can hit “Generate” again to build a new graph (if you change the random seed).
+Algorithms for some other computational geometry problems start by computing a convex hull. Consider, for example, the two-dimensional farthest-pair problem: we are given a set of n points in the plane and wish to find the two points whose distance from each other is maximum. This pair is also referred to as the diameter of the set of points. You can prove that these two points must be vertices of the convex hull.
 
-After generating, clicking on a node (or entering its index in the appropriate box) will highlight the source in green, and clicking another (or, again entering its index in the box) will highlight the destination in red. Each click alternates between the two. After these nodes are selected you can hit “Compute”, and your code should draw the shortest path starting from the source node and following all intermediate nodes until the destination node. Next to each edge between two nodes, display the cost of that segment of the route. Also, in the "Total Path Cost" box, display the total path cost. If the destination cannot be reached from the source then put “unreachable” in the total cost box. Clicking on the screen again will clear the current path while allowing you to set another source/destination pair.
-
-The “Compute” button should (potentially) call two different versions of Dijkstra’s, one that uses an array to implement the priority queue, and one that uses a heap. (Use the standard Dijkstra's algorithm from the text which puts all nodes initially in the queue and finds the shortest path from the source node to all nodes in the network; after running that, then you just need to show the path from the source to the destination.) Both versions should give you the same path cost. While both versions have the same "high-level" big-O complexity for the graphs they generate, they will differ significantly in their runtime (why?). Each time you hit solve and show a path, display the time required for each version, and the times speedup of the heap implementation over the array implementation.
+The problem of finding convex hulls also finds its practical applications in pattern recognition, image processing, statistics and GIS.
