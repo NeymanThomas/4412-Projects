@@ -2,7 +2,7 @@
 In this project you will implement Dijkstra’s algorithm to find paths through a graph representing a network routing problem.
 
 ## Installation
-In order to run the program, simply fork the repository and install the for Python files Proj3GUI.py, NetworkRoutingSolver.py, CS4412Graph.py, and which_pyqt.py. These four files can be placed in whatever directory you wish. </br>
+In order to run the program, simply fork the repository and install the four Python files Proj3GUI.py, NetworkRoutingSolver.py, CS4412Graph.py, and which_pyqt.py. These four files can be placed in whatever directory you wish. </br>
 This project uses [PyQt5](https://pypi.org/project/PyQt5/) in order to build the GUI for the application. Assuming you have installed [Python](https://www.python.org/downloads/) and your PATH variable is set up properly to run Python commands from the terminal, use the following command to install PyQt5:
 ```bash
 $ pip install PyQt5
