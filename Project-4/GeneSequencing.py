@@ -60,7 +60,6 @@ class GeneSequencing:
 	
 	# Sequences is a list of the 10 sequences we are matching together
 	def align(self, sequences, table, banded, align_length):
-		self.my_algorithm(sequences[0], sequences[1])
 		self.banded = banded
 		self.MaxCharactersToAlign = align_length
 		results = []
@@ -74,8 +73,7 @@ class GeneSequencing:
 					s = {}
 				else:
 					score = i + j
-					alignment1 = sequences[0]
-					alignment2 = sequences[1]
+					alignment1, alignment2 = self.my_algorithm(sequences[0], sequences[1])
 					############################################
 					s = {'align_cost':score, 'seqi_first100':alignment1, 'seqj_first100':alignment2}
 					table.item(i,j).setText('{}'.format(int(score) if score != math.inf else score))
@@ -104,8 +102,52 @@ class GeneSequencing:
 				insert = score[i][j - 1] + INDEL
 				score[i][j] = min(match, delete, insert)
 
-		# Now compare the values and create the score
+		# Now find the alignment
 		self.print_matrix(score)
+
+		# Create variables to hold alignments
+		align1 = ""
+		align2 = ""
+		# Start at bottom right cell
+		i = m
+		j = n
+
+		while i > 0 and j > 0:
+			score_current = score[i][j]
+			score_diagonal = score[i - 1][j - 1]
+			score_up = score[i][j - 1]
+			score_left = score[i - 1][j]
+
+			if score_current == score_diagonal + self.match_score(seq1[j - 1], seq2[i - 1]):
+				align1 += seq1[j - 1]
+				align2 += seq2[i - 1]
+				i -= 1
+				j -= 1
+			elif score_current == score_up + INDEL:
+				align1 += seq1[j - 1]
+				align2 += '-'
+				j -= 1
+			elif score_current == score_left + INDEL:
+				align1 += '-'
+				align2 += seq2[i - 1]
+				i -= 1
+		
+		while j > 0:
+			align1 += seq1[j - 1]
+			align2 += '-'
+			j -= 1
+		
+		while i > 0:
+			align1 += '-'
+			align2 += seq2[i - 1]
+			i -= 1
+		
+		# flip the alignment paths
+		align1 = align1[::-1]
+		align2 = align2[::-1]
+
+		return(align1, align2)
+
 	
 	def match_score(self, a, b):
 		if a == b:
@@ -115,6 +157,8 @@ class GeneSequencing:
 		else:
 			return SUB
 	
+	# This is a utility function that prints out the matrix to make sure
+	# that the sequences are being computed correctly
 	def print_matrix(self, mat):
 		# Loop over all rows
 		for i in range(0, len(mat)):
@@ -128,6 +172,7 @@ class GeneSequencing:
 					print("\t", end = "")
 			print("]\n")
 	
+	# Utility function that initializes the matrix with all 0's
 	def zeros(self, rows, cols):
 		retval = []
 		for x in range(rows):
