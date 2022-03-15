@@ -30,35 +30,6 @@ class GeneSequencing:
 # handle to the GUI so it can be updated as you find results, _banded_ is a boolean that tells
 # you whether you should compute a banded alignment or full alignment, and _align_length_ tells you 
 # how many base pairs to use in computing the alignment
-
-	def OLDalign( self, sequences, table, banded, align_length):
-		self.banded = banded
-		self.MaxCharactersToAlign = align_length
-		results = []
-
-		for i in range(len(sequences)):
-			jresults = []
-			for j in range(len(sequences)):
-
-				if(j < i):
-					s = {}
-				else:
-###################################################################################################
-# your code should replace these three statements and populate the three variables: score, alignment1 and alignment2
-					score = i+j
-					alignment1 = 'abc-easy  DEBUG:(seq{}, {} chars,align_len={}{})'.format(i+1,
-						len(sequences[i]), align_length, ',BANDED' if banded else '')
-					alignment2 = 'as-123--  DEBUG:(seq{}, {} chars,align_len={}{})'.format(j+1,
-						len(sequences[j]), align_length, ',BANDED' if banded else '')
-###################################################################################################					
-					s = {'align_cost':score, 'seqi_first100':alignment1, 'seqj_first100':alignment2}
-					table.item(i,j).setText('{}'.format(int(score) if score != math.inf else score))
-					table.update()	
-				jresults.append(s)
-			results.append(jresults)
-		return results
-	
-	# Sequences is a list of the 10 sequences we are matching together
 	def align(self, sequences, table, banded, align_length):
 		self.banded = banded
 		self.MaxCharactersToAlign = align_length
@@ -68,13 +39,24 @@ class GeneSequencing:
 			jresults = []
 			for j in range(len(sequences)):
 
-				# I'm pretty sure this is to stop from computing the bottom half of the triangle?
 				if j < i:
 					s = {}
 				else:
-					score = i + j
-					alignment1, alignment2 = self.my_algorithm(sequences[0], sequences[1])
-					############################################
+###################################################################################################
+
+					# Section of code implementation
+					sequence_to_compute1 = sequences[i]
+					sequence_to_compute1 = sequence_to_compute1[:self.MaxCharactersToAlign]
+
+					sequence_to_compute2 = sequences[j]
+					sequence_to_compute2 = sequence_to_compute2[:self.MaxCharactersToAlign]
+
+					if banded:
+						return
+					else:
+						score, alignment1, alignment2 = self.unrestricted_algorithm(sequence_to_compute1, sequence_to_compute2)
+
+###################################################################################################
 					s = {'align_cost':score, 'seqi_first100':alignment1, 'seqj_first100':alignment2}
 					table.item(i,j).setText('{}'.format(int(score) if score != math.inf else score))
 					table.update()
@@ -82,28 +64,28 @@ class GeneSequencing:
 			results.append(jresults)
 		return results
 
-	def my_algorithm(self, seq1, seq2):
+	# Unbanded algorithm implementation 
+	def unrestricted_algorithm(self, seq1, seq2):
 		n = len(seq1)
 		m = len(seq2)
-		score = self.zeros(m+1, n+1)
+		score = self.zeros(m + 1, n + 1)
+		final_score = 0
 
 		# First fill out the first row and column
-		for i in range(0, m+1):
+		for i in range(0, m + 1):
 			score[i][0] = INDEL * i
 		
-		for i in range(0, n+1):
+		for i in range(0, n + 1):
 			score[0][i] = INDEL * i
 		
 		for i in range(1, m+1):
-			for j in range(1, n+1):
+			for j in range(1, n + 1):
 				# Calculate the scores
 				match = score[i - 1][j - 1] + self.match_score(seq1[j - 1], seq2[i - 1])
 				delete = score[i - 1][j] + INDEL
 				insert = score[i][j - 1] + INDEL
 				score[i][j] = min(match, delete, insert)
-
-		# Now find the alignment
-		self.print_matrix(score)
+				final_score = score[i][j]
 
 		# Create variables to hold alignments
 		align1 = ""
@@ -146,8 +128,10 @@ class GeneSequencing:
 		align1 = align1[::-1]
 		align2 = align2[::-1]
 
-		return(align1, align2)
+		return(final_score, align1, align2)
 
+	def banded_algorithm(self, seq1, seq2):
+		return
 	
 	def match_score(self, a, b):
 		if a == b:
