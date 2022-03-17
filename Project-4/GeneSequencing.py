@@ -24,7 +24,6 @@ class GeneSequencing:
 
 	def __init__( self ):
 		pass
-
 	
 # This is the method called by the GUI.  _sequences_ is a list of the ten sequences, _table_ is a
 # handle to the GUI so it can be updated as you find results, _banded_ is a boolean that tells
@@ -65,28 +64,29 @@ class GeneSequencing:
 		return results
 
 	# Unbanded algorithm implementation 
-	# https://wilkelab.org/classes/SDS348/2019_spring/labs/lab13-solution.html
 	def unrestricted_algorithm(self, seq1, seq2):
 		n = len(seq1)
 		m = len(seq2)
 		score = self.init_matrix(m + 1, n + 1)
-		final_score = 0
 
-		# First fill out the first row and column
+		# First fill out the first row and column. These will always
+		# have the same value of indels * i or j
 		for i in range(0, m + 1):
 			score[i][0] = INDEL * i
 		
 		for i in range(0, n + 1):
 			score[0][i] = INDEL * i
 		
+		# next calculate all the scores for all positions from (1,1) to (n,m)
 		for i in range(1, m + 1):
 			for j in range(1, n + 1):
-				# Calculate the scores
+				# We compare what the cheapest move will be by calculating a match,
+				# deletion, or insertion, then choosing the minimum to be the current
+				# cell's score. 
 				match = score[i - 1][j - 1] + self.match_score(seq1[j - 1], seq2[i - 1])
 				delete = score[i - 1][j] + INDEL
 				insert = score[i][j - 1] + INDEL
 				score[i][j] = min(match, delete, insert)
-				final_score = score[i][j]
 
 		# Create variables to hold alignments
 		align1 = ""
@@ -95,6 +95,10 @@ class GeneSequencing:
 		i = m
 		j = n
 
+		# Now begin backtracking by starting from the bottom right cell. Compute which
+		# cell was taken in order to get to the current position then record that step
+		# to each alignment string. Stop once you reach one of the edges of the matrix
+		# or the origin
 		while i > 0 and j > 0:
 			score_current = score[i][j]
 			score_diagonal = score[i - 1][j - 1]
@@ -115,11 +119,13 @@ class GeneSequencing:
 				align2 += seq2[i - 1]
 				i -= 1
 		
+		# If i became 0 before j did, loop until j becomes 0 as well
 		while j > 0:
 			align1 += seq1[j - 1]
 			align2 += '-'
 			j -= 1
 		
+		# If j became 0 before i did, loop until i becomes 0 as well
 		while i > 0:
 			align1 += '-'
 			align2 += seq2[i - 1]
@@ -129,7 +135,8 @@ class GeneSequencing:
 		align1 = align1[::-1]
 		align2 = align2[::-1]
 
-		return(final_score, align1, align2)
+		# score[m][n] will be the final score in the bottom right corner
+		return(score[m][n], align1, align2)
 
 	# Banded Algorithm implementation
 	def banded_algorithm(self, seq1, seq2):
@@ -144,14 +151,16 @@ class GeneSequencing:
 		score = self.init_matrix(m + 1, n + 1)
 		final_score = 0
 
-		for i in range(0, m + 1):
+		for i in range(0, 4):
 			score[i][0] = INDEL * i
 		
-		for i in range(0, n + 1):
+		for i in range(0, 4):
 			score[0][i] = INDEL * i
 
 		for i in range(1, m + 1):
 			for j in range(1, n + 1):
+				# This is pretty much the same as before, but now we disregard calculating
+				# scores that are too far away from the diagonal center in the band
 				if j - i <= MAXINDELS and i - j <= MAXINDELS:
 					match = score[i - 1][j - 1] + self.match_score(seq1[j - 1], seq2[i - 1])
 					delete = score[i - 1][j] + INDEL
@@ -166,6 +175,7 @@ class GeneSequencing:
 		i = m
 		j = n
 
+		# Backtrack through the matrix in order to create the strings for each sequence
 		while i > 0 and j > 0:
 			score_current = score[i][j]
 			score_diagonal = score[i - 1][j - 1]
@@ -186,11 +196,13 @@ class GeneSequencing:
 				align2 += seq2[i - 1]
 				i -= 1
 
+		# If i became 0 before j did, loop until it's 0
 		while j > 0:
 			align1 += seq1[j - 1]
 			align2 += '-'
 			j -= 1
 		
+		# If j became 0 before i did, loop until it's 0
 		while i > 0:
 			align1 += '-'
 			align2 += seq2[i - 1]
@@ -202,6 +214,8 @@ class GeneSequencing:
 
 		return(final_score, align1, align2)
 
+	# Utility function for checking two separate points in the matrix and determining
+	# their score for each other's relation
 	def match_score(self, a, b):
 		if a == b:
 			return MATCH
@@ -224,26 +238,27 @@ class GeneSequencing:
 				if j != len(mat[i]) - 1:
 					print("\t", end = "")
 			print("]\n")
-
-	def print_matrix2(self, mat):
-		# Loop over all rows
-		for i in range(0, len(mat)):
-			print("[", end = "")
-			# Loop over each column in row i
-			for j in range(0, len(mat[i])):
-				# Print out the value in row i, column j
-				print(mat[i][j], end = "")
-				# Only add a tab if we're not in the last column
-				if j != len(mat[i]) - 1:
-					print("  ", end = "")
-			print("]\n")
 	
 	# Utility function that initializes the matrix with all 0's
+	# The matrix dimensions will be of size n by m
 	def init_matrix(self, rows, cols):
 		matrix = []
 		for x in range(rows):
 			matrix.append([])
 			for y in range(cols):
+				matrix[-1].append(0)
+		return matrix
+	
+	def init_banded_matrix(self, indels, seq1, seq2):
+		matrix = []
+		longest = 0
+		if seq1 > seq2: 
+			longest = seq1
+		else:
+			longest = seq2
+		for x in range(longest):
+			matrix.append([])
+			for y in range((indels * 2) + 1):
 				matrix[-1].append(0)
 		return matrix
 
