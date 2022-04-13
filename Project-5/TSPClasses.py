@@ -12,19 +12,19 @@ class TSPSolution:
 	def __init__( self, listOfCities):
 		self.route = listOfCities
 		self.cost = self._costOfRoute()
-		#print( [c._index for c in listOfCities] )
+		print( [c._index for c in listOfCities] )
 
 	def _costOfRoute( self ):
 		cost = 0
-		#print('cost = ',cost)
+		print('cost = ',cost)
 		last = self.route[0]
 		for city in self.route[1:]:
-			#print('cost increasing by {} for leg {} to {}'.format(last.costTo(city),last._name,city._name))
+			print('cost increasing by {} for leg {} to {}'.format(last.costTo(city),last._name,city._name))
 			cost += last.costTo(city)
 			last = city
-		#print('cost increasing by {} for leg {} to {}'.format(self.route[-1].costTo(self.route[0]),self.route[-1]._name,self.route[0]._name))
+		print('cost increasing by {} for leg {} to {}'.format(self.route[-1].costTo(self.route[0]),self.route[-1]._name,self.route[0]._name))
 		cost += self.route[-1].costTo( self.route[0] )
-		#print('cost = ',cost)
+		print('cost = ',cost)
 		return cost
 
 	def enumerateEdges( self ):
