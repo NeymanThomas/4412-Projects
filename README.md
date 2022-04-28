@@ -17,4 +17,5 @@ Gene Sequencing: In this project, you will implement two versions of a dynamic p
 Traveling Salesperson: In this project, you will implement a branch and bound algorithm to find solutions to the traveling salesperson problem (TSP) and get your first taste of dealing with NP-completeness.
 
 ### [Project 6](https://github.com/NeymanThomas/4412-Projects/tree/main/Project-6)
+**[Project Repo](https://github.com/joshwheelerISU/genetic_tsp)**</br>
 TSP Group Project: In this project, you will work in a small group to compare accuracy and the theoretical and empirical complexity of different algorithmic "solutions" to the traveling salesmen problem (TSP), including greedy, branch and bound, and an algorithm of your choice. In this context, a "solution" is an approximation that is found in reasonable time.
